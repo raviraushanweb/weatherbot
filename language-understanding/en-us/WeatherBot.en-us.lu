@@ -1,0 +1,25 @@
+
+# showWeather
+- get weather
+- weather
+- show me weather
+- mausam
+- how is the weather
+- i want to know the weather
+- mausam today
+- weather today
+- get weather at {@city=singapore}
+- {@city=mumbai}'s weather
+- mausam of {@city=kolkata}
+- how is the weather at {@city=newyork}
+- show me weather of {@city=patna}
+- {@city=patna} weather
+- {@city=lagos} mausam
+- weather {@city=utah}
+- mausam {@city=kota}
+-{@city=kanpur}
+-{@city=new york}
+
+@ prebuilt geographyV2 hasRoles city
+$ inzipcode: /[0-9]{6}/
+$ uszipcode: /[0-9]{5}/

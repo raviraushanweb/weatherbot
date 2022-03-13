@@ -1,0 +1,488 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "$designer": {
+    "id": "ryBxnI",
+    "name": "showWeather",
+    "comment": "this dialog is reponsible for showing the weather"
+  },
+  "autoEndDialog": true,
+  "defaultResultProperty": "dialog.result",
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnBeginDialog",
+      "$designer": {
+        "name": "BeginDialog",
+        "description": "",
+        "id": "nUeMWG"
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.SetProperties",
+          "$designer": {
+            "id": "KAdL5V"
+          },
+          "assignments": [
+            {
+              "property": "user.zipcode",
+              "value": "= coalesce(@inzipcode, @uszipcode)"
+            }
+          ]
+        },
+        {
+          "$kind": "Microsoft.SetProperty",
+          "$designer": {
+            "id": "TsDeyw"
+          },
+          "property": "user.city",
+          "value": "= @city.location"
+        },
+        {
+          "$kind": "Microsoft.SetProperty",
+          "$designer": {
+            "id": "7ClOuC"
+          },
+          "property": "user.location",
+          "value": "=coalesce(user.city, user.zipcode)"
+        },
+        {
+          "$kind": "Microsoft.TextInput",
+          "$designer": {
+            "id": "xYDe76"
+          },
+          "disabled": false,
+          "maxTurnCount": 3,
+          "alwaysPrompt": false,
+          "allowInterruptions": false,
+          "prompt": "${TextInput_Prompt_xYDe76()}",
+          "unrecognizedPrompt": "",
+          "invalidPrompt": "${TextInput_InvalidPrompt_xYDe76()}",
+          "property": "user.location",
+          "defaultValue": "NOT PROVIDED",
+          "value": "=coalesce(@city.location, @inzipcode, @uszipcode)",
+          "validations": []
+        },
+        {
+          "$kind": "Microsoft.SetProperties",
+          "$designer": {
+            "id": "ruRlEE"
+          },
+          "assignments": [
+            {
+              "property": "user.city",
+              "value": "=@city.location"
+            },
+            {
+              "property": "user.inzipcode",
+              "value": "=@inzipcode"
+            },
+            {
+              "property": "user.uszipcode",
+              "value": "=@uszipcode"
+            }
+          ]
+        },
+        {
+          "$kind": "Microsoft.SetProperties",
+          "$designer": {
+            "id": "2KbK4j"
+          },
+          "assignments": [
+            {
+              "property": "user.cityEmpty",
+              "value": "=empty(user.city)"
+            },
+            {
+              "property": "user.inzipcodeEmpty",
+              "value": "=empty(user.inzipcode)"
+            },
+            {
+              "property": "user.uszipcodeEmpty",
+              "value": "=empty(user.uszipcode)"
+            }
+          ]
+        },
+        {
+          "$kind": "Microsoft.IfCondition",
+          "$designer": {
+            "id": "IfofvS"
+          },
+          "condition": "=!user.cityEmpty",
+          "actions": [
+            {
+              "$kind": "Microsoft.HttpRequest",
+              "$designer": {
+                "id": "LYTPsN",
+                "comment": "get co-ordinates of the place"
+              },
+              "resultProperty": "user.coordinate",
+              "method": "GET",
+              "url": "=`http://api.openweathermap.org/geo/1.0/direct?q=${user.location}&limit=1&appid=def6e24738cfc072572659743505ac13`"
+            },
+            {
+              "$kind": "Microsoft.IfCondition",
+              "$designer": {
+                "id": "9UUrB8"
+              },
+              "condition": "=user.coordinate.statusCode == 200",
+              "actions": [
+                {
+                  "$kind": "Microsoft.SetProperties",
+                  "$designer": {
+                    "id": "alOIiO"
+                  },
+                  "assignments": [
+                    {
+                      "property": "user.lat",
+                      "value": "=user.coordinate.content[0].lat"
+                    },
+                    {
+                      "property": "user.lon",
+                      "value": "=user.coordinate.content[0].lon"
+                    },
+                    {
+                      "property": "user.placeName",
+                      "value": "=user.coordinate.content[0].name"
+                    }
+                  ]
+                }
+              ],
+              "elseActions": [
+                {
+                  "$kind": "Microsoft.SendActivity",
+                  "$designer": {
+                    "id": "fxxYdf"
+                  },
+                  "activity": "${SendActivity_fxxYdf()}",
+                  "disabled": true
+                },
+                {
+                  "$kind": "Microsoft.SetProperties",
+                  "$designer": {
+                    "id": "gsI6Tq"
+                  },
+                  "assignments": [
+                    {
+                      "property": "user.lat",
+                      "value": "=28.6369"
+                    },
+                    {
+                      "property": "user.lon",
+                      "value": "=77.2183"
+                    }
+                  ]
+                },
+                {
+                  "$kind": "Microsoft.SetProperty",
+                  "$designer": {
+                    "id": "c5N1UV"
+                  },
+                  "property": "user.placeName",
+                  "value": "='New Delhi'"
+                }
+              ]
+            }
+          ],
+          "elseActions": [
+            {
+              "$kind": "Microsoft.IfCondition",
+              "$designer": {
+                "id": "eGLj8K"
+              },
+              "actions": [
+                {
+                  "$kind": "Microsoft.HttpRequest",
+                  "$designer": {
+                    "id": "U6jdBv",
+                    "comment": "get coordinates from indian pincode"
+                  },
+                  "resultProperty": "dialog.INCoordinate",
+                  "method": "GET",
+                  "url": "=`http://api.openweathermap.org/geo/1.0/zip?zip=${user.inzipcode},IN&appid=def6e24738cfc072572659743505ac13`"
+                },
+                {
+                  "$kind": "Microsoft.IfCondition",
+                  "$designer": {
+                    "id": "sbWH20"
+                  },
+                  "condition": "=dialog.INCoordinate.statusCode == 200",
+                  "actions": [
+                    {
+                      "$kind": "Microsoft.SetProperties",
+                      "$designer": {
+                        "id": "ofJ9Wj"
+                      },
+                      "assignments": [
+                        {
+                          "property": "user.lat",
+                          "value": "=dialog.INCoordinate.content.lat"
+                        },
+                        {
+                          "property": "user.lon",
+                          "value": "=dialog.INCoordinate.content.lon"
+                        },
+                        {
+                          "property": "user.placeName",
+                          "value": "=dialog.INCoordinate.content.name"
+                        }
+                      ]
+                    }
+                  ],
+                  "elseActions": [
+                    {
+                      "$kind": "Microsoft.SendActivity",
+                      "$designer": {
+                        "id": "6wS12Y"
+                      },
+                      "activity": "${SendActivity_6wS12Y()}",
+                      "disabled": true
+                    },
+                    {
+                      "$kind": "Microsoft.SetProperties",
+                      "$designer": {
+                        "id": "l2C1e9"
+                      },
+                      "assignments": [
+                        {
+                          "property": "user.lat",
+                          "value": "=28.6369"
+                        },
+                        {
+                          "property": "user.lon",
+                          "value": "=77.2183"
+                        }
+                      ]
+                    },
+                    {
+                      "$kind": "Microsoft.SetProperty",
+                      "$designer": {
+                        "id": "ykENZi"
+                      },
+                      "property": "user.placeName",
+                      "value": "='New Delhi'"
+                    }
+                  ]
+                }
+              ],
+              "elseActions": [
+                {
+                  "$kind": "Microsoft.IfCondition",
+                  "$designer": {
+                    "id": "IqoFUx"
+                  },
+                  "condition": "=! user.uszipcodeEmpty",
+                  "actions": [
+                    {
+                      "$kind": "Microsoft.HttpRequest",
+                      "$designer": {
+                        "id": "uc89yn",
+                        "comment": "get coordinates from indian pincode"
+                      },
+                      "resultProperty": "dialog.USCoordinate",
+                      "method": "GET",
+                      "url": "=`http://api.openweathermap.org/geo/1.0/zip?zip=${user.uszipcode},US&appid=def6e24738cfc072572659743505ac13`"
+                    },
+                    {
+                      "$kind": "Microsoft.IfCondition",
+                      "$designer": {
+                        "id": "YvPj2m"
+                      },
+                      "condition": "=dialog.USCoordinate.statusCode == 200",
+                      "actions": [
+                        {
+                          "$kind": "Microsoft.SetProperties",
+                          "$designer": {
+                            "id": "xk7F1N"
+                          },
+                          "assignments": [
+                            {
+                              "property": "user.lat",
+                              "value": "=dialog.USCoordinate.content.lat"
+                            },
+                            {
+                              "property": "user.lon",
+                              "value": "=dialog.USCoordinate.content.lon"
+                            },
+                            {
+                              "property": "user.placeName",
+                              "value": "=dialog.USCoordinate.content.name"
+                            }
+                          ]
+                        }
+                      ],
+                      "elseActions": [
+                        {
+                          "$kind": "Microsoft.SendActivity",
+                          "$designer": {
+                            "id": "kdLESF"
+                          },
+                          "activity": "${SendActivity_kdLESF()}",
+                          "disabled": true
+                        },
+                        {
+                          "$kind": "Microsoft.SetProperties",
+                          "$designer": {
+                            "id": "WywaMW"
+                          },
+                          "assignments": [
+                            {
+                              "property": "user.lat",
+                              "value": "=40.7056"
+                            },
+                            {
+                              "property": "user.lon",
+                              "value": "=-74.0083"
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "Microsoft.SetProperty",
+                          "$designer": {
+                            "id": "gvBRp2"
+                          },
+                          "property": "user.placeName",
+                          "value": "='New York'"
+                        }
+                      ]
+                    }
+                  ],
+                  "elseActions": [
+                    {
+                      "$kind": "Microsoft.SendActivity",
+                      "$designer": {
+                        "id": "hd3za3"
+                      },
+                      "activity": "${SendActivity_hd3za3()}"
+                    }
+                  ]
+                }
+              ],
+              "condition": "=!user.inzipcodeEmpty"
+            }
+          ]
+        },
+        {
+          "$kind": "Microsoft.HttpRequest",
+          "$designer": {
+            "id": "5sqy4v",
+            "comment": "get the 5 days weather forecast"
+          },
+          "resultProperty": "user.weather",
+          "method": "GET",
+          "url": "=`https://api.openweathermap.org/data/2.5/onecall?lat=${user.lat}&lon=${user.lon}&exclude=hourly,minutely&appid=def6e24738cfc072572659743505ac13`"
+        },
+        {
+          "$kind": "Microsoft.IfCondition",
+          "$designer": {
+            "id": "PLmsFL"
+          },
+          "condition": "=user.weather.statusCode == 200",
+          "actions": [
+            {
+              "$kind": "Microsoft.SetProperties",
+              "$designer": {
+                "id": "qNHV33"
+              },
+              "assignments": [
+                {
+                  "property": "dialog.daily",
+                  "value": "=user.weather.content.daily"
+                }
+              ]
+            },
+            {
+              "$kind": "Microsoft.EditArray",
+              "$designer": {
+                "id": "CDOecF"
+              },
+              "changeType": "clear",
+              "itemsProperty": "dialog.data"
+            },
+            {
+              "$kind": "Microsoft.Foreach",
+              "$designer": {
+                "id": "7tu7Qf"
+              },
+              "index": "dialog.foreach.index",
+              "value": "dialog.foreach.value",
+              "itemsProperty": "dialog.daily",
+              "actions": [
+                {
+                  "$kind": "Microsoft.SetProperties",
+                  "$designer": {
+                    "id": "nJ5Ist"
+                  },
+                  "assignments": [
+                    {
+                      "property": "dialog.dataCount",
+                      "value": "=count(dialog.data)"
+                    }
+                  ]
+                },
+                {
+                  "$kind": "Microsoft.IfCondition",
+                  "$designer": {
+                    "id": "k2mQmc"
+                  },
+                  "condition": "= dialog.dataCount == 4",
+                  "actions": [
+                    {
+                      "$kind": "Microsoft.BreakLoop",
+                      "$designer": {
+                        "id": "VF8WKN"
+                      }
+                    }
+                  ],
+                  "elseActions": [
+                    {
+                      "$kind": "Microsoft.IfCondition",
+                      "$designer": {
+                        "id": "9knzo0"
+                      },
+                      "condition": "= dialog.foreach.index == 0",
+                      "actions": [
+                        {
+                          "$kind": "Microsoft.ContinueLoop",
+                          "$designer": {
+                            "id": "PNsZXY"
+                          }
+                        }
+                      ],
+                      "elseActions": [
+                        {
+                          "$kind": "Microsoft.EditArray",
+                          "$designer": {
+                            "id": "lVIKyW"
+                          },
+                          "changeType": "push",
+                          "itemsProperty": "dialog.data",
+                          "value": "=dialog.foreach.value"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "$kind": "Microsoft.SendActivity",
+          "$designer": {
+            "id": "ST0LC2"
+          },
+          "activity": "${SendActivity_ST0LC2()}"
+        },
+        {
+          "$kind": "Microsoft.SendActivity",
+          "$designer": {
+            "id": "uUzF4x"
+          },
+          "activity": "${SendActivity_uUzF4x()}"
+        }
+      ]
+    }
+  ],
+  "generator": "showWeather.lg",
+  "recognizer": "showWeather.lu.qna",
+  "id": "showWeather"
+}

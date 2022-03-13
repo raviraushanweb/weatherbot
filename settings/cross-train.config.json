@@ -1,0 +1,10 @@
+{
+  "WeatherBot.en-us": {
+    "rootDialog": true,
+    "triggers": {
+      "showWeather": [
+        "showWeather.en-us"
+      ]
+    }
+  }
+}
