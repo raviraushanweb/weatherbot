@@ -1,6 +1,14 @@
 {
   "name": "WeatherBot",
+  "description": "NLP Powered Weather Bot using LUIS cognitive service. Easily integrable with existing or new website as well as MS Teams",
+  "homepage": "https://raviraushan.com/",
+  "version": "1.0.0",
   "private": true,
+  "author": {
+    "name": "Ravi Raushan",
+    "email": "raviraushan@gmail.com",
+    "url": "https://github.com/raviraushanweb"
+  },
   "scripts": {
     "dev": "cross-env NODE_ENV=dev node index.js"
   },
